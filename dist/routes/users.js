@@ -1,0 +1,33 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const users_controllers_1 = require("../controllers/user-controllers/users-controllers");
+const users_controllers_2 = require("../controllers/user-controllers/users-controllers");
+const users_controllers_3 = require("../controllers/user-controllers/users-controllers");
+const users_controllers_4 = require("../controllers/user-controllers/users-controllers");
+const users_controllers_5 = require("../controllers/user-controllers/users-controllers");
+const profilePicController_1 = require("../controllers/profilePicController");
+const express_1 = require("express");
+const authorization_1 = require("../middleware/authorization");
+const upload_1 = require("../middleware/upload");
+const router = (0, express_1.Router)();
+/* GET users listing. */
+router.get("/", function (req, res, next) {
+    res.send("respond with a resource");
+});
+router.post("/forgotPass", users_controllers_4.verifyChangePasswordEmail);
+router.post("/resetPass", authorization_1.auth, users_controllers_4.userResetPassword);
+router.post("/register", users_controllers_3.createUser);
+router.post("/resend-otp", authorization_1.auth, users_controllers_1.resendOTP);
+router.post("/verify-otp", authorization_1.auth, users_controllers_1.verifyOTP);
+router.post("/login", users_controllers_3.loginUser);
+router.post("/change-password", authorization_1.auth, users_controllers_3.userChangePassword);
+router.get("/get-user-transactions", authorization_1.auth, users_controllers_3.getAllUserTransactionsByUser);
+router.get("/get-user-upcoming-activities", authorization_1.auth, users_controllers_2.getUserUpcomingActivities);
+router.patch("/updateUser", upload_1.upload.fields([{ name: "profilePic", maxCount: 1 }, { name: "identification_doc", maxCount: 1 }, { name: "proof_of_address_doc", maxCount: 1 }]), authorization_1.auth, users_controllers_1.updateUser);
+router.get("/totalincome/:id", users_controllers_5.getTotalIncomePerMonth);
+router.get("/totalincomepermonth/:id", users_controllers_5.getTotalIncomePerMonthWithinAPeriod);
+router.post("/uploadProfilePicture", profilePicController_1.uploadProfilePicture);
+router.post("/groupwithdraw", authorization_1.auth, users_controllers_1.withdrawFromUserGroupWallet);
+router.post("/savingswithdraw", authorization_1.auth, users_controllers_1.withdrawFromUserSavingsWallet);
+router.get("/global-wallet", authorization_1.auth, users_controllers_1.getGlobalWallet);
+exports.default = router;
