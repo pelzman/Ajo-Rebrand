@@ -1,7 +1,8 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
-
+import crypto from "crypto"
 const APP_SECRET = process.env.APP_SECRET;
+const PAYSTACK_KEY = process.env.PAYSTACK_KEY ;
 
 export const GenerateToken = async (payload: any) => {
   return jwt.sign(payload, APP_SECRET!, { expiresIn: "1d" });
@@ -42,3 +43,12 @@ export const getNextFriday = (date: Date) => {
 
   return nextFriday;
 };
+
+export const verify =(eventData:any , signature:string, ): boolean=>{
+  if (!PAYSTACK_KEY) {
+    throw new Error('PAYSTACK_KEY is not defined');
+  }
+  const hmac = crypto.createHmac('sha512', PAYSTACK_KEY);
+  const expectedSignature = hmac.update(JSON.stringify(eventData)).digest('hex');
+  return expectedSignature === signature;
+}
