@@ -15,6 +15,7 @@ import groupRouter from "./routes/groups";
 import paymentRoute from "./routes/paymentRoute";
 import settingsRoute from "./routes/settingsRoute";
 import "./models/otpCleanJob";
+import crypto from "crypto"
 
 
 dotenv.config();
@@ -50,9 +51,28 @@ db.sync({})
   .catch((err: HttpError) => {
     console.log(err);
   });
+  const secret:string | undefined = process.env.PAYSTACK_KEY ;
 
 // force:true
 // alter:true
+app.post("/paystack/webhook", function(req, res) {
+  if (!secret) {
+    throw new Error('PAYSTACK_KEY is not defined');
+  }
+  //validate event
+  const hash = crypto.createHmac('sha512', secret).update(JSON.stringify(req.body)).digest('hex');
+
+  if (hash == req.headers['x-paystack-signature']) {
+    // Retrieve the request's body
+    const event = req.body;
+    // Do something with event
+    if (event && event.event === 'transfer.success') {
+      return res.status(200).json({ message: 'Transfer successful' })
+    }  
+  } 
+  
+  res.send(200);
+});
 
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
